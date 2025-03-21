@@ -10,11 +10,10 @@ import numpy as np
 import scipy.optimize as sco
 from scipy.optimize import minimize
 
-###############################################################################
-#                       DOWNLOAD DATI ISHARES                                 #
-###############################################################################
-
-def get_the_tickers(verbose = False):
+def get_the_tickers():
+    """
+    This 
+    """
     tickers = ["EUNL.DE",  #iShares Core MSCI World USD (Acc)
             "IS3N.DE", #iShares MSCI EM IMI USD (Acc) 
             "IUSQ.DE", #iShares Core ACWUI USD (Acc) 
