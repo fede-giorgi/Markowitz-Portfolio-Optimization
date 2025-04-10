@@ -6,14 +6,12 @@ import re
 import pandas as pd
 import yfinance as yf
 import matplotlib.pyplot as plt
+from scipy.stats import norm, probplot
 import numpy as np
 import scipy.optimize as sco
 from scipy.optimize import minimize
 
 def get_the_tickers():
-    """
-    This 
-    """
     tickers = ["EUNL.DE",  #iShares Core MSCI World USD (Acc)
             "IS3N.DE", #iShares MSCI EM IMI USD (Acc) 
             "IUSQ.DE", #iShares Core ACWUI USD (Acc) 
@@ -37,14 +35,9 @@ def get_the_tickers():
 
     return tickers
 
-
-###############################################################################
-#               FUNZIONI DI PORTAFOGLIO E FRONTIERA EFFICIENTE                #
-###############################################################################
-
 def get_asset_data(tickers, start_date="2015-01-01", end_date="2025-01-01"):
     """
-    Restituisce un DataFrame con le colonne = Ticker e gli indici = Date.
+    Scarica i gli "Adj Close" dei tickers selezionati nel periodo [start_data - end_date] da Yahoo Finance. Restituisce un DataFrame con colonne = Ticker e indici = Date.
     """
     data = yf.download(tickers, start=start_date, end=end_date, auto_adjust=False)
     price_data = data['Adj Close']
@@ -54,13 +47,89 @@ def get_asset_data(tickers, start_date="2015-01-01", end_date="2025-01-01"):
 
 def compute_returns(data):
     """
-    Calcola i rendimenti giornalieri. Restituisce un DataFrame con i rendimenti percentuali giornalieri, rimuovendo eventuali NaN.
+    Calcola i returns mensili. Restituisce un DataFrame con i returns percentuali mensili, rimuovendo eventuali NaN.
     """
-    returns = data.pct_change().dropna()
-    return returns
+    # Raggruppa per mese prendendo l'ultimo prezzo disponibile per ciascun mese
+    monthly_prices = data.resample('M').last()
+    # Calcola il rendimento percentuale mensile e rimuove i valori NaN
+    monthly_returns = monthly_prices.pct_change().dropna()
+    return monthly_returns
+
+
+def analizza_ticker(ticker, returns, finestra=30):
+    """
+    Analizza il ticker selezionato.
+    """
+
+    # 1. Statistiche riassuntive
+    print("Statistiche riassuntive dei returns giornalieri:")
+    print(returns.describe())
+    
+    # 2. Time plot dei returns giornalieri
+    plt.figure(figsize=(12, 6))
+    plt.plot(returns.index, returns, label="returns Giornalieri")
+    plt.xlabel("Data")
+    plt.ylabel("Rendimento")
+    plt.title(f"returns Giornalieri per {ticker}")
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+    
+    # 3. Equity curve: calcolo del valore cumulativo del portafoglio
+    equity_curve = (1 + returns).cumprod()
+    plt.figure(figsize=(12, 6))
+    plt.plot(equity_curve.index, equity_curve, label="Equity Curve", color="green")
+    plt.xlabel("Data")
+    plt.ylabel("Valore Normalizzato")
+    plt.title(f"Equity Curve per {ticker}")
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+    
+    # 4. Distribuzione dei returns e confronto con la curva normale
+    plt.figure(figsize=(12, 6))
+    n, bins, _ = plt.hist(returns, bins=50, density=True, alpha=0.6, color='blue', label="Istogramma")
+    
+    # Fit della distribuzione normale sui returns
+    mu, sigma = norm.fit(returns)
+    x = np.linspace(min(bins), max(bins), 100)
+    pdf = norm.pdf(x, mu, sigma)
+    plt.plot(x, pdf, 'r', linewidth=2, label=f'Normale Fit (mu={mu:.4f}, sigma={sigma:.4f})')
+    plt.xlabel("Rendimento")
+    plt.ylabel("Densità")
+    plt.title(f"Distribuzione dei returns per {ticker}")
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+    
+    # QQ Plot per verificare la normalità dei returns
+    plt.figure(figsize=(6, 6))
+    probplot(returns, dist="norm", plot=plt)
+    plt.title(f"QQ Plot dei returns per {ticker}")
+    plt.grid(True)
+    plt.show()
+    
+    # 5. Rolling averages: media e varianza mobile
+    media_mobile = returns.rolling(window=finestra).mean()
+    varianza_mobile = returns.rolling(window=finestra).var()
+    
+    fig, ax1 = plt.subplots(figsize=(12, 6))
+    ax1.plot(media_mobile.index, media_mobile, label="Media Mobile", color="blue")
+    ax1.set_xlabel("Data")
+    ax1.set_ylabel("Media Mobile")
+    ax1.legend(loc='upper left')
+    ax1.grid(True)
+    
+    ax2 = ax1.twinx()
+    ax2.plot(varianza_mobile.index, varianza_mobile, label="Varianza Mobile", color="red")
+    ax2.set_ylabel("Varianza Mobile")
+    ax2.legend(loc='upper right')
+    
+    plt.title(f"Rolling Averages (finestra = {finestra} giorni) per {ticker}")
+    plt.show()
 
 def expected_return(weights, returns):
-    return np.sum(returns.mean()*weights)*252
+    return np.sum(returns.mean()*weights)*12
 
 def standard_deviation(weights, cov_matrix):
     variance = weights.T @ cov_matrix @ weights
@@ -198,7 +267,7 @@ def plot_efficient_frontier(mu, cov, w_min, w_opt, random_results, overall_risk,
 
 def plot_portfolio_distribution(mu, sigma):
     """
-    Plotta la distribuzione dei rendimenti del portafoglio assumendo una distribuzione normale.
+    Plotta la distribuzione dei returns del portafoglio assumendo una distribuzione normale.
     """
     # Crea una griglia per l'asse x
     x = np.linspace(mu - 4*sigma, mu + 4*sigma, 1000)
@@ -208,7 +277,7 @@ def plot_portfolio_distribution(mu, sigma):
     plt.plot(x, y)
     plt.xlabel('Rendimento del Portafoglio')
     plt.ylabel('Densità di Probabilità')
-    plt.title('Distribuzione dei Rendimenti del Portafoglio')
+    plt.title('Distribuzione dei returns del Portafoglio')
     plt.legend()
     plt.grid(True)
     plt.show()
@@ -223,6 +292,14 @@ def main(capital, target_return=None, target_risk=None, risk_free_rate=0.025):
     # Pulizia: rimuove ticker e date completamente NaN
     data.dropna(axis=1, how='all', inplace=True)  # rimuove i ticker senza dati
     data.dropna(axis=0, how='all', inplace=True)  # rimuove le date senza dati
+
+    for ticker in all_tickers:
+        # Calcola i returns giornalieri
+        ticker_data = data[ticker]
+        ticker_returns = ticker_data.pct_change().dropna()
+        
+        # Analizza il ticker
+        analizza_ticker(ticker, ticker_returns, finestra=30)
 
     returns = compute_returns(data)  
     annualized_return = returns.mean() * 252
