@@ -1,11 +1,12 @@
 #%%
+import os
 from scipy.stats import norm
-import requests
 import pdfplumber
 import re
 import pandas as pd
 import yfinance as yf
 import matplotlib.pyplot as plt
+from pylatex import Document, Section, Subsection, Tabular, Figure, NoEscape, Command, MiniPage
 from scipy.stats import norm, probplot
 import numpy as np
 import scipy.optimize as sco
@@ -47,89 +48,134 @@ def get_asset_data(tickers, start_date="2015-01-01", end_date="2025-01-01"):
 
 def compute_returns(data):
     """
-    Calcola i returns mensili. Restituisce un DataFrame con i returns percentuali mensili, rimuovendo eventuali NaN.
+    Calcola i returns giornalieri. Restituisce un DataFrame con i returns percentuali giornalieri, rimuovendo eventuali NaN.
     """
     # Raggruppa per mese prendendo l'ultimo prezzo disponibile per ciascun mese
-    monthly_prices = data.resample('M').last()
-    # Calcola il rendimento percentuale mensile e rimuove i valori NaN
-    monthly_returns = monthly_prices.pct_change().dropna()
-    return monthly_returns
+    # monthly_prices = data.resample('M').last()
+    # Calcola il rendimento percentuale  e rimuove i valori NaN
+    returns = data.pct_change(fill_method=None).dropna()
+    return returns
 
 
-def analizza_ticker(ticker, returns, finestra=30):
-    """
-    Analizza il ticker selezionato.
-    """
+def analizza_tickers(tickers, returns_df, finestra=30):
+    img_dir = 'immagini_tickers'
+    os.makedirs(img_dir, exist_ok=True)
 
-    # 1. Statistiche riassuntive
-    print("Statistiche riassuntive dei returns giornalieri:")
-    print(returns.describe())
-    
-    # 2. Time plot dei returns giornalieri
-    plt.figure(figsize=(12, 6))
-    plt.plot(returns.index, returns, label="returns Giornalieri")
-    plt.xlabel("Data")
-    plt.ylabel("Rendimento")
-    plt.title(f"returns Giornalieri per {ticker}")
-    plt.legend()
-    plt.grid(True)
-    plt.show()
-    
-    # 3. Equity curve: calcolo del valore cumulativo del portafoglio
-    equity_curve = (1 + returns).cumprod()
-    plt.figure(figsize=(12, 6))
-    plt.plot(equity_curve.index, equity_curve, label="Equity Curve", color="green")
-    plt.xlabel("Data")
-    plt.ylabel("Valore Normalizzato")
-    plt.title(f"Equity Curve per {ticker}")
-    plt.legend()
-    plt.grid(True)
-    plt.show()
-    
-    # 4. Distribuzione dei returns e confronto con la curva normale
-    plt.figure(figsize=(12, 6))
-    n, bins, _ = plt.hist(returns, bins=50, density=True, alpha=0.6, color='blue', label="Istogramma")
-    
-    # Fit della distribuzione normale sui returns
-    mu, sigma = norm.fit(returns)
-    x = np.linspace(min(bins), max(bins), 100)
-    pdf = norm.pdf(x, mu, sigma)
-    plt.plot(x, pdf, 'r', linewidth=2, label=f'Normale Fit (mu={mu:.4f}, sigma={sigma:.4f})')
-    plt.xlabel("Rendimento")
-    plt.ylabel("Densità")
-    plt.title(f"Distribuzione dei returns per {ticker}")
-    plt.legend()
-    plt.grid(True)
-    plt.show()
-    
-    # QQ Plot per verificare la normalità dei returns
-    plt.figure(figsize=(6, 6))
-    probplot(returns, dist="norm", plot=plt)
-    plt.title(f"QQ Plot dei returns per {ticker}")
-    plt.grid(True)
-    plt.show()
-    
-    # 5. Rolling averages: media e varianza mobile
-    media_mobile = returns.rolling(window=finestra).mean()
-    varianza_mobile = returns.rolling(window=finestra).var()
-    
-    fig, ax1 = plt.subplots(figsize=(12, 6))
-    ax1.plot(media_mobile.index, media_mobile, label="Media Mobile", color="blue")
-    ax1.set_xlabel("Data")
-    ax1.set_ylabel("Media Mobile")
-    ax1.legend(loc='upper left')
-    ax1.grid(True)
-    
-    ax2 = ax1.twinx()
-    ax2.plot(varianza_mobile.index, varianza_mobile, label="Varianza Mobile", color="red")
-    ax2.set_ylabel("Varianza Mobile")
-    ax2.legend(loc='upper right')
-    
-    plt.title(f"Rolling Averages (finestra = {finestra} giorni) per {ticker}")
-    plt.show()
+    geometry_options = {"top": "3.5cm", "left": "2cm", "right": "2cm", "bottom": "3.5cm"}
+    doc = Document('Analisi_Completa_Portafoglio', geometry_options=geometry_options)
+    doc.packages.append(NoEscape(r'\usepackage{graphicx}'))
+
+
+    doc.preamble.append(Command('title', 'Analisi dei tickers'))
+    doc.preamble.append(Command('author', 'Federico Giorgi'))
+    doc.preamble.append(Command('date', NoEscape('')))
+    doc.append(NoEscape('\maketitle'))
+
+    with doc.create(Section('Analisi Completa dei Tickers', numbering=False)):
+        for ticker in tickers:
+            returns = returns_df[ticker].dropna()
+
+            with doc.create(Subsection(f'Analisi del Ticker {ticker}', numbering=False)):
+
+                # Statistiche riassuntive
+                summary = returns.describe().to_frame().round(4)
+                with doc.create(Tabular('lr')) as table:
+                    for idx, row in summary.iterrows():
+                        table.add_row(idx, row[ticker])
+
+                # Immagine 1: Returns Giornalieri
+                plt.figure(figsize=(8, 4))
+                plt.plot(returns.index, returns, label="Returns giornalieri")
+                plt.xlabel("Data")
+                plt.ylabel("Rendimento")
+                plt.title(f"Returns giornalieri per {ticker}")
+                plt.legend()
+                plt.grid(True)
+                img_returns = os.path.join(img_dir, f'{ticker}_returns_plot.png')
+                plt.savefig(img_returns, bbox_inches='tight')
+                plt.close()
+                img_returns = img_returns.replace('\\', '/')
+
+                # Immagine 2: Equity Curve
+                equity_curve = (1 + returns).cumprod()
+                plt.figure(figsize=(8, 4))
+                plt.plot(equity_curve.index, equity_curve, label="Equity Curve", color="green")
+                plt.xlabel("Data")
+                plt.ylabel("Valore Normalizzato")
+                plt.title(f"Equity Curve per {ticker}")
+                plt.legend()
+                plt.grid(True)
+                img_equity = os.path.join(img_dir, f'{ticker}_equity_curve.png')
+                plt.savefig(img_equity, bbox_inches='tight')
+                plt.close()
+                img_equity = img_equity.replace('\\', '/')
+
+                # Immagine 3: Distribuzione dei returns
+                plt.figure(figsize=(8, 4))
+                n, bins, _ = plt.hist(returns, bins=50, density=True, alpha=0.6, color='blue', label="Istogramma")
+                mu, sigma = norm.fit(returns)
+                x = np.linspace(min(bins), max(bins), 100)
+                pdf = norm.pdf(x, mu, sigma)
+                plt.plot(x, pdf, 'r', linewidth=2, label=f'Fit normale (mu={mu:.4f}, sigma={sigma:.4f})')
+                plt.xlabel("Rendimento")
+                plt.ylabel("Densità")
+                plt.title(f"Distribuzione dei returns per {ticker}")
+                plt.legend()
+                plt.grid(True)
+                img_distribuzione = os.path.join(img_dir, f'{ticker}_distribuzione_returns.png')
+                plt.savefig(img_distribuzione, bbox_inches='tight')
+                plt.close()
+                img_distribuzione = img_distribuzione.replace('\\', '/')
+
+                # Riga con 3 immagini
+                with doc.create(Figure(position='htbp')):
+                    for img in [img_returns, img_equity, img_distribuzione]:
+                        with doc.create(MiniPage(width=NoEscape('0.31\\textwidth'))):
+                            doc.append(NoEscape(f"\\includegraphics[width=\\linewidth]{{{img}}}"))
+
+                # Immagine 4: QQ Plot
+                plt.figure(figsize=(8, 4))
+                probplot(returns, dist="norm", plot=plt)
+                plt.title(f"QQ Plot dei returns per {ticker}")
+                plt.grid(True)
+                img_qqplot = os.path.join(img_dir, f'{ticker}_qq_plot.png')
+                plt.savefig(img_qqplot, bbox_inches='tight')
+                plt.close()
+                img_qqplot = img_qqplot.replace('\\', '/')
+
+                # Immagine 5: Rolling Averages
+                media_mobile = returns.rolling(window=finestra).mean()
+                varianza_mobile = returns.rolling(window=finestra).var()
+
+                fig, ax1 = plt.subplots(figsize=(8, 4))
+                ax1.plot(media_mobile.index, media_mobile, label="Media Mobile", color="blue")
+                ax1.set_xlabel("Data")
+                ax1.set_ylabel("Media Mobile")
+                ax1.legend(loc='upper left')
+                ax1.grid(True)
+
+                ax2 = ax1.twinx()
+                ax2.plot(varianza_mobile.index, varianza_mobile, label="Varianza Mobile", color="red")
+                ax2.set_ylabel("Varianza Mobile")
+                ax2.legend(loc='upper right')
+
+                plt.title(f"Rolling Averages per {ticker}")
+                img_rolling = os.path.join(img_dir, f'{ticker}_rolling_averages.png')
+                plt.savefig(img_rolling, bbox_inches='tight')
+                plt.close()
+                img_rolling = img_rolling.replace('\\', '/')
+
+                # Riga con 2 immagini
+                with doc.create(Figure(position='htbp')):
+                    for img in [img_qqplot, img_rolling]:
+                        with doc.create(MiniPage(width=NoEscape('0.48\\textwidth'))):
+                            doc.append(NoEscape(f"\\includegraphics[width=\\linewidth]{{{img}}}"))
+
+    doc.generate_pdf(clean_tex=False, compiler='pdflatex')
+
 
 def expected_return(weights, returns):
-    return np.sum(returns.mean()*weights)*12
+    return np.sum(returns.mean()*weights)*252
 
 def standard_deviation(weights, cov_matrix):
     variance = weights.T @ cov_matrix @ weights
@@ -293,15 +339,11 @@ def main(capital, target_return=None, target_risk=None, risk_free_rate=0.025):
     data.dropna(axis=1, how='all', inplace=True)  # rimuove i ticker senza dati
     data.dropna(axis=0, how='all', inplace=True)  # rimuove le date senza dati
 
-    for ticker in all_tickers:
-        # Calcola i returns giornalieri
-        ticker_data = data[ticker]
-        ticker_returns = ticker_data.pct_change().dropna()
-        
-        # Analizza il ticker
-        analizza_ticker(ticker, ticker_returns, finestra=30)
-
     returns = compute_returns(data)  
+
+    # Analizza i ticker
+    analizza_tickers(all_tickers, returns, finestra=30)
+
     annualized_return = returns.mean() * 252
     annualized_cov = returns.cov() * 252
     
