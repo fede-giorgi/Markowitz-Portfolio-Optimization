@@ -14,9 +14,6 @@ from scipy.optimize import minimize
 
 def get_the_tickers():
     tickers = ["EUNL.DE",  #iShares Core MSCI World USD (Acc)
-            "IS3N.DE", #iShares MSCI EM IMI USD (Acc) 
-            "IUSQ.DE", #iShares Core ACWUI USD (Acc) 
-            "SXRT.DE", #iShares Core STOXX 50 EUR (Acc)
             "SXR8.DE", #iShares Core S&P 500 USD (Acc)
             "SXRV.DE", #iShares NASDAQ100 USD (Acc)
             "SXRY.DE", #iShares FTSE MIB EUR EUR (Acc)
@@ -24,30 +21,14 @@ def get_the_tickers():
             "AMES.DE", #Amundi IBEX 35 EUR (Acc)
             "GC40.DE", #Amundi CAC 40 EUR (Acc)
             "SXRW.DE", #iShares FTSE 100 GBP (Acc)
-            "SXRZ.DE", #iShares Nikkei 225 JPY (Acc)
-            "ICGA.DE", #iShares MSCI China USD (Acc)
             "QDV5.DE", #iShares MSCI India USD (Acc)
-            "IBC4.DE", #iShares MSCI South Africa USD (Acc)
             "PPFB.DE", #iShares Physical Gold USD (Acc)
             "IS0D.DE", #iShares Oil & Gas USD (Acc)
-            "XDW0.DE", #iShares MSCI World Energy USD (Acc)
             ]
-
-    return tickers
-
-# Detailed descriptions for each ETF
-ticker_descriptions = {
+    
+    ticker_descriptions = {
     "EUNL.DE": (
         "iShares Core MSCI World USD (Acc): ETF tracking the MSCI World Index — large and mid‑cap companies across 23 developed markets. Accumulating dividends, USD‑denominated."
-    ),
-    "IS3N.DE": (
-        "iShares MSCI Emerging Markets IMI USD (Acc): ETF tracking the MSCI Emerging Markets Investable Market Index, covering large, mid, and small‑cap companies across emerging markets. Accumulating dividends, USD‑denominated."
-    ),
-    "IUSQ.DE": (
-        "iShares Core All Country World USD (Acc): ETF tracking the MSCI ACWI UCITS Index — a broad global equity benchmark including developed and emerging markets. Accumulating dividends, USD‑denominated."
-    ),
-    "SXRT.DE": (
-        "iShares Core STOXX Europe 50 EUR (Acc): ETF tracking the STOXX Europe 50 Index — 50 blue‑chip companies across Europe. Accumulating dividends, EUR‑denominated."
     ),
     "SXR8.DE": (
         "iShares Core S&P 500 USD (Acc): ETF tracking the S&P 500 Index — 500 large‑cap U.S. companies. Accumulating dividends, USD‑denominated."
@@ -70,17 +51,8 @@ ticker_descriptions = {
     "SXRW.DE": (
         "iShares FTSE 100 GBP (Acc): ETF tracking the FTSE 100 Index — 100 largest U.K. companies by market cap. Accumulating dividends, GBP‑denominated."
     ),
-    "SXRZ.DE": (
-        "iShares Nikkei 225 JPY (Acc): ETF tracking the Nikkei 225 Index — 225 large‑cap Japanese stocks. Accumulating dividends, JPY‑denominated."
-    ),
-    "ICGA.DE": (
-        "iShares MSCI China USD (Acc): ETF tracking the MSCI China Index — large and mid‑cap Chinese companies. Accumulating dividends, USD‑denominated."
-    ),
     "QDV5.DE": (
         "iShares MSCI India USD (Acc): ETF tracking the MSCI India Index — large and mid‑cap Indian companies. Accumulating dividends, USD‑denominated."
-    ),
-    "IBC4.DE": (
-        "iShares MSCI South Africa USD (Acc): ETF tracking the MSCI South Africa Index — large and mid‑cap South African companies. Accumulating dividends, USD‑denominated."
     ),
     "PPFB.DE": (
         "iShares Physical Gold USD (Acc): ETF physically backing gold bullion held in vaults. Provides pure gold price exposure. Accumulating (no dividend). USD‑denominated."
@@ -88,10 +60,9 @@ ticker_descriptions = {
     "IS0D.DE": (
         "iShares Oil & Gas USD (Acc): ETF tracking the STOXX Global Oil & Gas Index — major oil and gas companies. Accumulating dividends, USD‑denominated."
     ),
-    "XDW0.DE": (
-        "iShares MSCI World Energy USD (Acc): ETF tracking the MSCI World Energy Index — energy sector companies in developed markets. Accumulating dividends, USD‑denominated."
-    ),
 }
+
+    return tickers, ticker_descriptions
 
 def get_asset_data(tickers, start_date="2015-01-01", end_date="2025-01-01"):
     """
@@ -114,7 +85,7 @@ def compute_returns(data):
     return returns
 
 
-def analyze_tickers(tickers, returns_df, window=30):
+def analyze_tickers(tickers, ticker_descriptions, returns_df, window=30):
     img_dir = 'ticker_images'
     os.makedirs(img_dir, exist_ok=True)
 
@@ -398,7 +369,7 @@ def plot_portfolio_distribution(mu, sigma):
 def main(capital, target_return=None, target_risk=None, risk_free_rate=0.025, data=None, all_tickers=None):
     if data is None:
         # Scarica i dati e crea un DataFrame
-        all_tickers = get_the_tickers()
+        all_tickers, ticker_descriptions = get_the_tickers()
         data = get_asset_data(all_tickers)
 
     # Pulizia: rimuove ticker e date completamente NaN
@@ -408,7 +379,7 @@ def main(capital, target_return=None, target_risk=None, risk_free_rate=0.025, da
     returns = compute_returns(data)  
 
     # Analizza i ticker
-    analyze_tickers(all_tickers, returns, window=30)
+    analyze_tickers(all_tickers, ticker_descriptions, returns, window=30)
 
     annualized_return = returns.mean() * 252
     annualized_cov = returns.cov() * 252
