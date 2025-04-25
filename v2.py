@@ -203,7 +203,7 @@ def analyze_tickers(tickers, ticker_descriptions, returns_df, window=30):
             # Insert two-panel figure
             with doc.create(Figure(position='htbp')):
                 for img in [img_qq, img_roll]:
-                    with doc.create(MiniPage(width=NoEscape('0.48\\textwidth'))):
+                    with doc.create(MiniPage(width=NoEscape('0.31\\textwidth'))):
                         doc.append(NoEscape(f"\\includegraphics[width=\\linewidth]{{{img}}}"))
 
     # Generate PDF (keeps .tex for inspection)
