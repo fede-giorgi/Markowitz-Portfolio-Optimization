@@ -27,46 +27,34 @@ def get_the_tickers():
             ]
     
     ticker_descriptions = {
-    "EUNL.DE": (
-        "iShares Core MSCI World USD (Acc): ETF tracking the MSCI World Index — large and mid‑cap companies across 23 developed markets. Accumulating dividends, USD‑denominated."
+    "EUNL.DE": ("iShares Core MSCI World USD (Acc): ETF tracking the MSCI World Index — large and mid‑cap companies across 23 developed markets. Accumulating dividends, USD‑denominated."
     ),
-    "SXR8.DE": (
-        "iShares Core S&P 500 USD (Acc): ETF tracking the S&P 500 Index — 500 large‑cap U.S. companies. Accumulating dividends, USD‑denominated."
+    "SXR8.DE": ("iShares Core S&P 500 USD (Acc): ETF tracking the S&P 500 Index — 500 large‑cap U.S. companies. Accumulating dividends, USD‑denominated."
     ),
-    "SXRV.DE": (
-        "iShares NASDAQ 100 USD (Acc): ETF tracking the NASDAQ‑100 Index — 100 of the largest non‑financial U.S. and international companies listed on the Nasdaq. Accumulating dividends, USD‑denominated."
+    "SXRV.DE": ("iShares NASDAQ 100 USD (Acc): ETF tracking the NASDAQ‑100 Index — 100 of the largest non‑financial U.S. and international companies listed on the Nasdaq. Accumulating dividends, USD‑denominated."
     ),
-    "SXRY.DE": (
-        "iShares FTSE MIB EUR (Acc): ETF tracking the FTSE MIB Index — 40 of the most liquid Italian stocks. Accumulating dividends, EUR‑denominated."
+    "SXRY.DE": ("iShares FTSE MIB EUR (Acc): ETF tracking the FTSE MIB Index — 40 of the most liquid Italian stocks. Accumulating dividends, EUR‑denominated."
     ),
-    "EXS1.DE": (
-        "iShares Core DAX EUR (Acc): ETF tracking the DAX Index — 40 major German blue‑chip companies. Accumulating dividends, EUR‑denominated."
+    "EXS1.DE": ("iShares Core DAX EUR (Acc): ETF tracking the DAX Index — 40 major German blue‑chip companies. Accumulating dividends, EUR‑denominated."
     ),
-    "AMES.DE": (
-        "Amundi IBEX 35 EUR (Acc): ETF tracking the IBEX 35 Index — 35 most liquid Spanish stocks. Accumulating dividends, EUR‑denominated."
+    "AMES.DE": ("Amundi IBEX 35 EUR (Acc): ETF tracking the IBEX 35 Index — 35 most liquid Spanish stocks. Accumulating dividends, EUR‑denominated."
     ),
-    "GC40.DE": (
-        "Amundi CAC 40 EUR (Acc): ETF tracking the CAC 40 Index — 40 largest French companies by market cap. Accumulating dividends, EUR‑denominated."
+    "GC40.DE": ("Amundi CAC 40 EUR (Acc): ETF tracking the CAC 40 Index — 40 largest French companies by market cap. Accumulating dividends, EUR‑denominated."
     ),
-    "SXRW.DE": (
-        "iShares FTSE 100 GBP (Acc): ETF tracking the FTSE 100 Index — 100 largest U.K. companies by market cap. Accumulating dividends, GBP‑denominated."
+    "SXRW.DE": ("iShares FTSE 100 GBP (Acc): ETF tracking the FTSE 100 Index — 100 largest U.K. companies by market cap. Accumulating dividends, GBP‑denominated."
     ),
-    "QDV5.DE": (
-        "iShares MSCI India USD (Acc): ETF tracking the MSCI India Index — large and mid‑cap Indian companies. Accumulating dividends, USD‑denominated."
+    "QDV5.DE": ("iShares MSCI India USD (Acc): ETF tracking the MSCI India Index — large and mid‑cap Indian companies. Accumulating dividends, USD‑denominated."
     ),
-    "PPFB.DE": (
-        "iShares Physical Gold USD (Acc): ETF physically backing gold bullion held in vaults. Provides pure gold price exposure. Accumulating (no dividend). USD‑denominated."
+    "PPFB.DE": ("iShares Physical Gold USD (Acc): ETF physically backing gold bullion held in vaults. Provides pure gold price exposure. Accumulating (no dividend). USD‑denominated."
     ),
-    "IS0D.DE": (
-        "iShares Oil & Gas USD (Acc): ETF tracking the STOXX Global Oil & Gas Index — major oil and gas companies. Accumulating dividends, USD‑denominated."
+    "IS0D.DE": ("iShares Oil & Gas USD (Acc): ETF tracking the STOXX Global Oil & Gas Index — major oil and gas companies. Accumulating dividends, USD‑denominated."
     ),
 }
-
     return tickers, ticker_descriptions
 
 def get_asset_data(tickers, start_date="2015-01-01", end_date="2025-01-01"):
     """
-    Scarica i gli "Adj Close" dei tickers selezionati nel periodo [start_data - end_date] da Yahoo Finance. Restituisce un DataFrame con colonne = Ticker e indici = Date.
+    Downloads the "Adj Closes" of selected tickers in the period [start_date - end_date] from Yahoo Finance. Returns a DataFrame with columns = Ticker and indexes = Date.
     """
     data = yf.download(tickers, start=start_date, end=end_date, auto_adjust=False)
     price_data = data['Adj Close']
@@ -76,11 +64,9 @@ def get_asset_data(tickers, start_date="2015-01-01", end_date="2025-01-01"):
 
 def compute_returns(data):
     """
-    Calcola i returns giornalieri. Restituisce un DataFrame con i returns percentuali giornalieri, rimuovendo eventuali NaN.
+    Computes daily returns. Returns a DataFrame with daily percentage returns, removing any NaN values.
     """
-    # Raggruppa per mese prendendo l'ultimo prezzo disponibile per ciascun mese
-    # monthly_prices = data.resample('M').last()
-    # Calcola il rendimento percentuale  e rimuove i valori NaN
+    # Calculate the percentage return and remove NaN values
     returns = data.pct_change(fill_method=None).dropna()
     return returns
 
@@ -90,10 +76,10 @@ def analyze_tickers(tickers, ticker_descriptions, returns_df, window=30):
     os.makedirs(img_dir, exist_ok=True)
 
     # Set up LaTeX document
-    geometry_options = {"top": "2.5cm", 
-                        "left": "2cm", 
-                        "right": "2cm", 
-                        "bottom": "2.5cm"}
+    geometry_options = {"top": "3.5cm", 
+                        "left": "3cm", 
+                        "right": "3cm", 
+                        "bottom": "3.5cm"}
     doc = Document('Complete_Ticker_Analysis', geometry_options=geometry_options)
     doc.preamble.append(NoEscape(r'''
         \usepackage{graphicx}
@@ -145,6 +131,12 @@ def analyze_tickers(tickers, ticker_descriptions, returns_df, window=30):
             plt.close()
             img_equity = img_equity.replace('\\', '/')
 
+            # Insert two-panel figure
+            with doc.create(Figure(position='htbp')):
+                for img in [img_returns, img_equity]:
+                    with doc.create(MiniPage(width=NoEscape('0.49\\textwidth'))):
+                        doc.append(NoEscape(f"\\includegraphics[width=\\linewidth]{{{img}}}"))
+
             # Figure 3: Return Distribution
             plt.figure(figsize=(8, 4))
             n, bins, _ = plt.hist(returns, bins=50, density=True, alpha=0.6, label="Histogram")
@@ -162,12 +154,6 @@ def analyze_tickers(tickers, ticker_descriptions, returns_df, window=30):
             plt.close()
             img_dist = img_dist.replace('\\', '/')
 
-            # Insert three-panel figure
-            with doc.create(Figure(position='htbp')):
-                for img in [img_returns, img_equity, img_dist]:
-                    with doc.create(MiniPage(width=NoEscape('0.31\\textwidth'))):
-                        doc.append(NoEscape(f"\\includegraphics[width=\\linewidth]{{{img}}}"))
-
             # Figure 4: QQ Plot
             plt.figure(figsize=(8, 4))
             probplot(returns, dist="norm", plot=plt)
@@ -177,6 +163,12 @@ def analyze_tickers(tickers, ticker_descriptions, returns_df, window=30):
             plt.savefig(img_qq, bbox_inches='tight')
             plt.close()
             img_qq = img_qq.replace('\\', '/')
+
+            # Insert three-panel figure
+            with doc.create(Figure(position='htbp')):
+                for img in [img_dist, img_qq]:
+                    with doc.create(MiniPage(width=NoEscape('0.49\\textwidth'))):
+                        doc.append(NoEscape(f"\\includegraphics[width=\\linewidth]{{{img}}}"))
 
             # Figure 5: Rolling Mean and Variance
             rolling_mean = returns.rolling(window=window).mean()
@@ -190,7 +182,7 @@ def analyze_tickers(tickers, ticker_descriptions, returns_df, window=30):
             ax1.grid(True)
 
             ax2 = ax1.twinx()
-            ax2.plot(rolling_var.index, rolling_var, label="Rolling Variance")
+            ax2.plot(rolling_var.index, rolling_var, label="Rolling Variance", color='orange')
             ax2.set_ylabel("Rolling Variance")
             ax2.legend(loc='upper right')
 
@@ -200,11 +192,14 @@ def analyze_tickers(tickers, ticker_descriptions, returns_df, window=30):
             plt.close()
             img_roll = img_roll.replace('\\', '/')
 
-            # Insert two-panel figure
+            # Insert last  figure
             with doc.create(Figure(position='htbp')):
-                for img in [img_qq, img_roll]:
-                    with doc.create(MiniPage(width=NoEscape('0.31\\textwidth'))):
+                for img in [img_roll]:
+                    with doc.create(MiniPage(width=NoEscape('0.49\\textwidth'))):
                         doc.append(NoEscape(f"\\includegraphics[width=\\linewidth]{{{img}}}"))
+            
+            doc.append(NoEscape(r'\newpage'))
+
 
     # Generate PDF (keeps .tex for inspection)
     doc.generate_pdf(clean_tex=False, compiler='pdflatex')
@@ -222,7 +217,7 @@ def sharpe_ratio(weights, returns, cov_matrix, risk_free_rate):
 
 def min_variance_portfolio(mu, cov):
     """
-    Calcola il portafoglio a minima varianza (long-only) vincolato a pesi >= 0, sum(w)=1.
+    Computes the minimum variance portfolio (long-only) constrained to weights >= 0, sum(w)=1.
     """
     n = len(mu)
     cons = ({'type': 'eq', 'fun': lambda w: np.sum(w) - 1})
@@ -238,8 +233,7 @@ def min_variance_portfolio(mu, cov):
 
 def max_sharpe_portfolio(mu, cov, risk_free_rate):
     """
-    Calcola i pesi del portafoglio ottimale (portafoglio tangente) 
-    in presenza di un risk_free_rate.
+    Computes the optimal portfolio weights (tangency portfolio) in the presence of a risk-free rate.
     """
     def neg_sharpe_ratio(weights, mu, cov_matrix, risk_free_rate):
         return -sharpe_ratio(weights, mu, cov_matrix, risk_free_rate)
@@ -275,8 +269,7 @@ def allocate_capital(rf_rate, r_tangent, sigma_tangent, capital, target_return=N
 
 def allocate_to_euros(weights, capital):
     """
-    Trasforma i pesi (fra 0 e 1) in importi interi (arrotondati all'euro) 
-    la cui somma è esattamente 'capital'.
+    Transforms weights (between 0 and 1) into integer amounts (rounded to the euro) whose sum is exactly 'capital'.
     """
     capital_int = int(round(capital))
     raw_values = weights * capital_int
@@ -293,8 +286,7 @@ def allocate_to_euros(weights, capital):
 
 def generate_random_portfolios(mu, cov, num_portfolios=10000):
     """
-    Genera portafogli casuali (long-only) per illustrare la frontiera.
-    Restituisce un array con righe = [rischio, rendimento, Sharpe].
+    Generates random portfolios (long-only) to illustrate the frontier. Returns an array with rows = [risk, return, Sharpe].
     """
     n = len(mu)
     results = np.zeros((3, num_portfolios))
@@ -435,3 +427,4 @@ def main(capital, target_return=None, target_risk=None, risk_free_rate=0.025, da
     print(f"VaR al 5%: {VaR_5_eur:.2f} EUR")
 
     return df_portfolio
+# %%
