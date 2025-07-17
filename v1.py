@@ -13,83 +13,84 @@ import scipy.optimize as sco
 from scipy.optimize import minimize
 
 def get_the_tickers():
-    tickers = ["EUNL.DE",  #iShares Core MSCI World USD (Acc)
-            "IS3N.DE", #iShares MSCI EM IMI USD (Acc) 
-            "IUSQ.DE", #iShares Core ACWUI USD (Acc) 
-            "SXRT.DE", #iShares Core STOXX 50 EUR (Acc)
-            "SXR8.DE", #iShares Core S&P 500 USD (Acc)
-            "SXRV.DE", #iShares NASDAQ100 USD (Acc)
-            "SXRY.DE", #iShares FTSE MIB EUR EUR (Acc)
-            "EXS1.DE", #iShares Core DAX EUR (Acc)
-            "AMES.DE", #Amundi IBEX 35 EUR (Acc)
-            "GC40.DE", #Amundi CAC 40 EUR (Acc)
-            "SXRW.DE", #iShares FTSE 100 GBP (Acc)
-            "SXRZ.DE", #iShares Nikkei 225 JPY (Acc)
-            "ICGA.DE", #iShares MSCI China USD (Acc)
-            "QDV5.DE", #iShares MSCI India USD (Acc)
-            "IBC4.DE", #iShares MSCI South Africa USD (Acc)
-            "PPFB.DE", #iShares Physical Gold USD (Acc)
-            "IS0D.DE", #iShares Oil & Gas USD (Acc)
-            "XDW0.DE", #iShares MSCI World Energy USD (Acc)
-            ]
+    tickers = [
+        "EUNL.DE",  #iShares Core MSCI World USD (Acc)
+        "IS3N.DE", #iShares MSCI EM IMI USD (Acc) 
+        "IUSQ.DE", #iShares Core ACWUI USD (Acc) 
+        "SXRT.DE", #iShares Core STOXX 50 EUR (Acc)
+        "SXR8.DE", #iShares Core S&P 500 USD (Acc)
+        "SXRV.DE", #iShares NASDAQ100 USD (Acc)
+        "SXRY.DE", #iShares FTSE MIB EUR EUR (Acc)
+        "EXS1.DE", #iShares Core DAX EUR (Acc)
+        "AMES.DE", #Amundi IBEX 35 EUR (Acc)
+        "GC40.DE", #Amundi CAC 40 EUR (Acc)
+        "SXRW.DE", #iShares FTSE 100 GBP (Acc)
+        "SXRZ.DE", #iShares Nikkei 225 JPY (Acc)
+        "ICGA.DE", #iShares MSCI China USD (Acc)
+        "QDV5.DE", #iShares MSCI India USD (Acc)
+        "IBC4.DE", #iShares MSCI South Africa USD (Acc)
+        "PPFB.DE", #iShares Physical Gold USD (Acc)
+        "IS0D.DE", #iShares Oil & Gas USD (Acc)
+        "XDW0.DE", #iShares MSCI World Energy USD (Acc)
+        ]
 
     return tickers
 
 # Detailed descriptions for each ETF
 ticker_descriptions = {
     "EUNL.DE": (
-        "iShares Core MSCI World USD (Acc): ETF tracking the MSCI World Index — large and mid‑cap companies across 23 developed markets. Accumulating dividends, USD‑denominated."
+        "iShares Core MSCI World USD (Acc): ETF tracking the MSCI World Index, large and mid‑cap companies across 23 developed markets. Accumulating dividends, USD‑denominated."
     ),
     "IS3N.DE": (
         "iShares MSCI Emerging Markets IMI USD (Acc): ETF tracking the MSCI Emerging Markets Investable Market Index, covering large, mid, and small‑cap companies across emerging markets. Accumulating dividends, USD‑denominated."
     ),
     "IUSQ.DE": (
-        "iShares Core All Country World USD (Acc): ETF tracking the MSCI ACWI UCITS Index — a broad global equity benchmark including developed and emerging markets. Accumulating dividends, USD‑denominated."
+        "iShares Core All Country World USD (Acc): ETF tracking the MSCI ACWI UCITS Index, a broad global equity benchmark including developed and emerging markets. Accumulating dividends, USD‑denominated."
     ),
     "SXRT.DE": (
-        "iShares Core STOXX Europe 50 EUR (Acc): ETF tracking the STOXX Europe 50 Index — 50 blue‑chip companies across Europe. Accumulating dividends, EUR‑denominated."
+        "iShares Core STOXX Europe 50 EUR (Acc): ETF tracking the STOXX Europe 50 Index, 50 blue‑chip companies across Europe. Accumulating dividends, EUR‑denominated."
     ),
     "SXR8.DE": (
-        "iShares Core S&P 500 USD (Acc): ETF tracking the S&P 500 Index — 500 large‑cap U.S. companies. Accumulating dividends, USD‑denominated."
+        "iShares Core S&P 500 USD (Acc): ETF tracking the S&P 500 Index, 500 large‑cap U.S. companies. Accumulating dividends, USD‑denominated."
     ),
     "SXRV.DE": (
-        "iShares NASDAQ 100 USD (Acc): ETF tracking the NASDAQ‑100 Index — 100 of the largest non‑financial U.S. and international companies listed on the Nasdaq. Accumulating dividends, USD‑denominated."
+        "iShares NASDAQ 100 USD (Acc): ETF tracking the NASDAQ‑100 Index, 100 of the largest non‑financial U.S. and international companies listed on the Nasdaq. Accumulating dividends, USD‑denominated."
     ),
     "SXRY.DE": (
-        "iShares FTSE MIB EUR (Acc): ETF tracking the FTSE MIB Index — 40 of the most liquid Italian stocks. Accumulating dividends, EUR‑denominated."
+        "iShares FTSE MIB EUR (Acc): ETF tracking the FTSE MIB Index, 40 of the most liquid Italian stocks. Accumulating dividends, EUR‑denominated."
     ),
     "EXS1.DE": (
-        "iShares Core DAX EUR (Acc): ETF tracking the DAX Index — 40 major German blue‑chip companies. Accumulating dividends, EUR‑denominated."
+        "iShares Core DAX EUR (Acc): ETF tracking the DAX Index, 40 major German blue‑chip companies. Accumulating dividends, EUR‑denominated."
     ),
     "AMES.DE": (
-        "Amundi IBEX 35 EUR (Acc): ETF tracking the IBEX 35 Index — 35 most liquid Spanish stocks. Accumulating dividends, EUR‑denominated."
+        "Amundi IBEX 35 EUR (Acc): ETF tracking the IBEX 35 Index, 35 most liquid Spanish stocks. Accumulating dividends, EUR‑denominated."
     ),
     "GC40.DE": (
-        "Amundi CAC 40 EUR (Acc): ETF tracking the CAC 40 Index — 40 largest French companies by market cap. Accumulating dividends, EUR‑denominated."
+        "Amundi CAC 40 EUR (Acc): ETF tracking the CAC 40 Index, 40 largest French companies by market cap. Accumulating dividends, EUR‑denominated."
     ),
     "SXRW.DE": (
-        "iShares FTSE 100 GBP (Acc): ETF tracking the FTSE 100 Index — 100 largest U.K. companies by market cap. Accumulating dividends, GBP‑denominated."
+        "iShares FTSE 100 GBP (Acc): ETF tracking the FTSE 100 Index, 100 largest U.K. companies by market cap. Accumulating dividends, GBP‑denominated."
     ),
     "SXRZ.DE": (
-        "iShares Nikkei 225 JPY (Acc): ETF tracking the Nikkei 225 Index — 225 large‑cap Japanese stocks. Accumulating dividends, JPY‑denominated."
+        "iShares Nikkei 225 JPY (Acc): ETF tracking the Nikkei 225 Index, 225 large‑cap Japanese stocks. Accumulating dividends, JPY‑denominated."
     ),
     "ICGA.DE": (
-        "iShares MSCI China USD (Acc): ETF tracking the MSCI China Index — large and mid‑cap Chinese companies. Accumulating dividends, USD‑denominated."
+        "iShares MSCI China USD (Acc): ETF tracking the MSCI China Index, large and mid‑cap Chinese companies. Accumulating dividends, USD‑denominated."
     ),
     "QDV5.DE": (
-        "iShares MSCI India USD (Acc): ETF tracking the MSCI India Index — large and mid‑cap Indian companies. Accumulating dividends, USD‑denominated."
+        "iShares MSCI India USD (Acc): ETF tracking the MSCI India Index, large and mid‑cap Indian companies. Accumulating dividends, USD‑denominated."
     ),
     "IBC4.DE": (
-        "iShares MSCI South Africa USD (Acc): ETF tracking the MSCI South Africa Index — large and mid‑cap South African companies. Accumulating dividends, USD‑denominated."
+        "iShares MSCI South Africa USD (Acc): ETF tracking the MSCI South Africa Index, large and mid‑cap South African companies. Accumulating dividends, USD‑denominated."
     ),
     "PPFB.DE": (
         "iShares Physical Gold USD (Acc): ETF physically backing gold bullion held in vaults. Provides pure gold price exposure. Accumulating (no dividend). USD‑denominated."
     ),
     "IS0D.DE": (
-        "iShares Oil & Gas USD (Acc): ETF tracking the STOXX Global Oil & Gas Index — major oil and gas companies. Accumulating dividends, USD‑denominated."
+        "iShares Oil & Gas USD (Acc): ETF tracking the STOXX Global Oil & Gas Index, major oil and gas companies. Accumulating dividends, USD‑denominated."
     ),
     "XDW0.DE": (
-        "iShares MSCI World Energy USD (Acc): ETF tracking the MSCI World Energy Index — energy sector companies in developed markets. Accumulating dividends, USD‑denominated."
+        "iShares MSCI World Energy USD (Acc): ETF tracking the MSCI World Energy Index, energy sector companies in developed markets. Accumulating dividends, USD‑denominated."
     ),
 }
 
@@ -464,3 +465,4 @@ def main(capital, target_return=None, target_risk=None, risk_free_rate=0.025, da
     print(f"VaR al 5%: {VaR_5_eur:.2f} EUR")
 
     return df_portfolio
+# %%
