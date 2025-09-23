@@ -16,13 +16,54 @@
         \usepackage{fancyhdr}
         \pagestyle{fancy}
     %
-\title{Ticker Analysis}%
+\title{Markowitz Portfolio Optimization}%
 \author{}%
 \date{}%
 %
 \begin{document}%
 \normalsize%
 \maketitle%
+\section*{Analysis Summary}%
+\label{sec:AnalysisSummary}%
+\begin{itemize}%
+\item Fetched data from 2015-01-01 to 2025-01-01%
+\item Portafoglio Max Sharpe: %
+\item Expected Return = 16.27\%, %
+\item Volatilità = 9.01\%%
+\item Portafoglio Complessivo (Risk-Free + Risky):%
+\item Expected Return = 16.27\%, %
+\item Volatilità = 9.01\%%
+\item VaR al 1\%: 47.00 EUR%
+\item VaR al 5\%: 0.00 EUR%
+\end{itemize}
+
+%
+\begin{tabular}{l r}%
+\hline%
+ETF&Allocazione MaxSharpe (EUR)\\%
+\hline%
+AMES.DE&151\\%
+GC40.DE&79\\%
+PPFB.DE&273\\%
+QDV5.DE&74\\%
+SXR8.DE&211\\%
+SXRW.DE&212\\%
+Risk{-}Free&0\\%
+\hline%
+\end{tabular}%
+
+
+\begin{figure}[htbp]%
+\begin{minipage}{0.49\textwidth}%
+\includegraphics[width=\linewidth]{ticker_images/efficient_frontier.png}%
+\end{minipage}%
+\begin{minipage}{0.49\textwidth}%
+\includegraphics[width=\linewidth]{ticker_images/portfolio_distribution.png}%
+\end{minipage}%
+\end{figure}
+
+%
+\newpage%
 \section*{Analysis of Ticker EUNL.DE}%
 \label{sec:AnalysisofTickerEUNL.DE}%
 iShares Core MSCI World USD (Acc): ETF tracking the MSCI World Index — large and mid‑cap companies across 23 developed markets. Accumulating dividends, USD‑denominated.%
