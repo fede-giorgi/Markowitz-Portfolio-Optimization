@@ -1,7 +1,10 @@
-# 📈 Markowitz Portfolio Optimization
+# Markowitz Portfolio Optimization
 
-This project applies **Modern Portfolio Theory (MPT)** to real financial data.  
-It starts with the **analysis of individual ETFs**, studying their return distributions, and then moves to the construction of optimal portfolios. 
+## Overview
+
+This project applies Modern Portfolio Theory (MPT) to real financial data.  
+It starts with the analysis of individual ETFs, studying their return distributions, and then moves to the construction of optimal portfolios. 
+
 ---
 
 ## ETF Analysis
